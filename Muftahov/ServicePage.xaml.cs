@@ -59,6 +59,7 @@ namespace Muftahov
             {
                 currentServices = currentServices.Where(p => (p.Discount >= 70 && p.Discount < 100)).ToList();
             }
+            currentServices = currentServices.Where(p => p.Title.ToLower().Contains(TBoxSearch.Text.ToLower())).ToList();
             if (RButtonDown.IsChecked.Value)
             {
                 currentServices = currentServices.OrderByDescending(p => p.Cost).ToList();  
@@ -69,6 +70,17 @@ namespace Muftahov
             }
             ServiceListView.ItemsSource = currentServices;
         }
+
+        private void TBoxSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateSevices();
+        }
+
+        private void ComboType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateSevices();
+        }
+
         private void RButtonUp_Checked(object sender, RoutedEventArgs e)
         {
             UpdateSevices();
@@ -79,14 +91,23 @@ namespace Muftahov
             UpdateSevices();
         }
 
-        private void ComboType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            UpdateSevices();
+            Manager.MainFrame.Navigate(new AddEditPage(null));
         }
 
-        private void TBoxSearch_TextChanged(object sender, TextChangedEventArgs e)
+        private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            UpdateSevices();
+            Manager.MainFrame.Navigate(new AddEditPage((sender as Button).DataContext as service));
+        }
+
+        private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (Visibility == Visibility.Visible)
+            {
+                Muftahov_avtoserviceEntities1.GetContext().ChangeTracker.Entries().ToList().ForEach(p => p.Reload());
+                ServiceListView.ItemsSource = Muftahov_avtoserviceEntities1.GetContext().service.ToList();
+            }
         }
     }
 }
